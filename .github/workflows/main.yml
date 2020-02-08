@@ -46,6 +46,7 @@ jobs:
         run: |
           cd friendlywrt-h5
           ./build.sh nanopi_r1s.mk
+          
       
       - name: Zip Files
         run: |
