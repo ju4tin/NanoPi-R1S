@@ -42,7 +42,12 @@ jobs:
           repo init -u https://github.com/friendlyarm/friendlywrt_manifests -b master -m h5.xml --repo-url=https://github.com/friendlyarm/repo  --no-clone-bundle
           repo sync -c  --no-clone-bundle
 
-      
+      - name: Update Feeds
+        run: |
+          cd friendlywrt-h5/friendlywrt
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+          
       - name: Download package
         if: always()
         run: |
