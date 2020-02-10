@@ -32,11 +32,14 @@ jobs:
         with:
           ref: master
 
-      - name: Initialization Environment
+      - name: Initialization environment
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
-          wget -O - https://raw.githubusercontent.com/friendlyarm/build-env-on-ubuntu-bionic/master/install.sh | bash         
+          sudo -E apt-get update
+          sudo -E apt-get clean
+          sudo wget -O - https://raw.githubusercontent.com/friendlyarm/build-env-on-ubuntu-bionic/master/install.sh | bash
+          sudo -E apt-get -y install bc         
           
       - name: Install Repo
         run: |
@@ -48,11 +51,31 @@ jobs:
           mkdir friendlywrt-h5
           cd friendlywrt-h5
           repo init -u https://github.com/friendlyarm/friendlywrt_manifests -b master -m h5.xml --repo-url=https://github.com/friendlyarm/repo  --no-clone-bundle
-          repo sync -c  --no-clone-bundle
+          repo sync -c --no-clone-bundle -j$(nproc)
           
-      - name: Build OpenWrt
+      - name: Update and install feeds
+        run: |
+          cd friendlywrt-h5/friendlywrt
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+          
+      
+      - name: SSH connection to Actions
+        uses: P3TERX/debugger-action@master
+          
+      - name: Download package
+        if: always()
+        run: |
+          cd friendlywrt-h5/friendlywrt
+          make download -j8
+          find dl -size -1024c -exec ls -l {} \;
+          find dl -size -1024c -exec rm -f {} \;
+          
+      - name: Build
+        if: always()
         run: |
           cd friendlywrt-h5
+          echo "Start building..."
           ./build.sh nanopi_r1s.mk
       
       - name: Zip Files
