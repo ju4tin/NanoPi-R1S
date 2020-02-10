@@ -1,13 +1,21 @@
-#NanoPi-R1S H5 FriendlyWrt Build
+#
+# This is free software, lisence use MIT.
+# 
+# Copyright (C) 2019 Jolly <https://totoro.site>
+# 
+# <https://github.com/skytotwo/NanoPi-R1S-Build-By-Actions>
+#
+# Write by Jolly 2019/12/7
+# last update at 2019/12/14
 
-name: NanoPi-R1S H5 FriendlyWrt Build
+name: NanoPi-R1s H5 OpenWrt Build
 
 on:
   push:
     branches: 
       - master
-  schedule:
-      - cron: 0 8 * * 5
+  # schedule:
+  #   - cron: 0 20 * * *
   # release:
   #   types: [published]
 
@@ -46,21 +54,17 @@ jobs:
           cd friendlywrt-h5
           cd .repo/manifests
           rm -f ./h5.xml
-          wget https://raw.githubusercontent.com/camino13/NanoPi-R1S/master/h5.xml
+          wget https://raw.githubusercontent.com/skytotwo/transferUtils/master/h5.xml
           repo sync -c  --no-clone-bundle
+      
       - name: Merge LEDE
         run: |
           cd friendlywrt-h5
           git clone https://github.com/coolsnowwolf/lede
           cd friendlywrt
           cp -r ../lede/package/lean package/         
-          sed -i 's/https:\/\/git.openwrt.org\/project\/luci.git;openwrt-19.07/https:\/\/github.com\/coolsnowwolf\/luci/' feeds.conf.default
-          sed -i 's/https:\/\/git.openwrt.org\/feed\/packages.git;openwrt-19.07/https:\/\/github.com\/coolsnowwolf\/packages/' feeds.conf.default
-      - name: Custom Applications
-        run: |
-          cd friendlywrt-h5/friendlywrt/package
-          git clone https://github.com/Baozisoftware/luci-app-koolproxy
-      
+          sed -i 's/https:\/\/git.openwrt.org\/project\/luci.git;openwrt-18.06/https:\/\/github.com\/coolsnowwolf\/luci/' feeds.conf.default  
+          
       - name: Update Target.mk
         run: |
           cd friendlywrt-h5/friendlywrt/include 
@@ -72,11 +76,11 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
           
-      - name: Custom Configure File
+      - name: Costom Configure File
         run: |
           cd friendlywrt-h5/friendlywrt
           rm -f ./.config*
-          wget https://raw.githubusercontent.com/camino13/NanoPi-R1S/master/r1s-h5-config
+          wget https://raw.githubusercontent.com/skytotwo/NanoPi-R1S-Build-By-Actions/master/r1s-h5-config
           cp r1s-h5-config .config
       
       - name: Download package
@@ -87,7 +91,7 @@ jobs:
           find dl -size -1024c -exec ls -l {} \;
           find dl -size -1024c -exec rm -f {} \;
           
-      - name: Build FriendlyWrt
+      - name: Build OpenWrt
         run: |
           cd friendlywrt-h5
           ./build.sh nanopi_r1s.mk
@@ -106,4 +110,3 @@ jobs:
         with:
           name: FriendlyWrt_NanoPi-R1S
           path: ./artifact/
-
