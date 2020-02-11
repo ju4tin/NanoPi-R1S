@@ -72,7 +72,8 @@ jobs:
           cd friendlywrt
           cp -r ../lede/package/lean package/
           rm -f feeds.conf.default
-          wget https://raw.githubusercontent.com/coolsnowwolf/lede/master/feeds.conf.default    
+          wget https://raw.githubusercontent.com/coolsnowwolf/lede/master/feeds.conf.default
+          sed -i 's/dnsmasq /dnsmasq-full default-settings luci /' include/target.mk   
           
       - name: Update and install feeds
         run: |
