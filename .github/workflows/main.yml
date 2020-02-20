@@ -61,6 +61,14 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
           
+          
+      - name: Set Default Configure File
+        run: |
+          cd friendlywrt-h5/friendlywrt
+          rm -f ./.config*
+          wget https://raw.githubusercontent.com/friendlyarm/friendlywrt_configs/master/config_h5
+          cp config_h5 .config
+          
       
       - name: SSH connection to Actions
         uses: P3TERX/debugger-action@master
